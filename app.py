@@ -21,7 +21,6 @@ def main():
             'word': word['word'],
             'definition': definition,
         })
-    msg = request.args.get('msg')
     return render_template(
         'index.html',
         words=words,
