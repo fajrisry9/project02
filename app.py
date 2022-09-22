@@ -25,7 +25,18 @@ def main():
     return render_template(
         'index.html',
         words=words,
-        msg=msg
+    )
+
+@app.route('/error')
+def error():
+    word = request.args.get('word')
+    suggestions = request.args.get('suggestions')
+    if suggestions:
+        suggestions = suggestions.split(',')
+    return render_template(
+        'error.html',
+        word=word,
+        suggestions=suggestions
     )
 
 @app.route('/detail/<keyword>')
@@ -37,14 +48,15 @@ def detail(keyword):
 
     if not definitions:
         return redirect(url_for(
-            'main',
-            msg=f'Could not find {keyword}'
+            'error',
+            word=keyword
         ))
 
     if type(definitions[0]) is str:
         return redirect(url_for(
-            'main',
-            msg=f'Could not find {keyword}, did you mean {", ".join(definitions)}?'
+            'error',
+            word=keyword,
+            suggestions=','.join(definitions)
         ))
 
     status = request.args.get('status_give', 'new')
