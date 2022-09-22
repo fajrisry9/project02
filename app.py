@@ -12,19 +12,47 @@ db = client.dbsparta
 
 @app.route('/')
 def main():
-    return render_template("index.html")
+    words_result = db.words.find({}, {'_id': False})
+    words = []
+    for word in words_result:
+        definition = word['definitions'][0]['shortdef']
+        definition = definition if type(definition) is str else definition[0]
+        words.append({
+            'word': word['word'],
+            'definition': definition,
+        })
+    msg = request.args.get('msg')
+    return render_template(
+        'index.html',
+        words=words,
+        msg=msg
+    )
 
 @app.route('/detail/<keyword>')
 def detail(keyword):
-    api_key = 'aa48b5b6-5c32-4aa0-9ecf-1c96d3182539'
+    api_key = "aa48b5b6-5c32-4aa0-9ecf-1c96d3182539"
     url = f'https://www.dictionaryapi.com/api/v3/references/collegiate/json/{keyword}?key={api_key}'
     response = requests.get(url)
     definitions = response.json()
+
+    if not definitions:
+        return redirect(url_for(
+            'main',
+            msg=f'Could not find {keyword}'
+        ))
+
+    if type(definitions[0]) is str:
+        return redirect(url_for(
+            'main',
+            msg=f'Could not find {keyword}, did you mean {", ".join(definitions)}?'
+        ))
+
+    status = request.args.get('status_give', 'new')
     return render_template(
         'detail.html',
         word=keyword,
         definitions=definitions,
-        status=request.args.get('status_give', 'new')
+        status=status
     )
 
 @app.route('/api/save_word', methods=['POST'])
@@ -35,12 +63,12 @@ def save_word():
     doc = {
         'word': word,
         'definitions': definitions,
-        'date': datetime.now().strftime('%d.%b   .%Y')
+        'date': datetime.now().strftime('%d.%b.%Y')
     }
     db.words.insert_one(doc)
     return jsonify({
         'result': 'success',
-        'msg': f'the word, {word}, was saved!!!'
+        'msg': f'kata, {word}, sudah tersimpan!!!'
     })
 
 @app.route('/api/delete_word', methods=['POST'])
