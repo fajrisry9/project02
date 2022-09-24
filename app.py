@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, jsonify, redirect, url_for
 from pymongo import MongoClient
 from datetime import datetime
 import requests
+from bson import ObjectId
 
 
 app = Flask(__name__)
@@ -21,10 +22,11 @@ def main():
             'word': word['word'],
             'definition': definition,
         })
-    msg = request.args.get('msg')
+    msg = request.args.get("msg")
     return render_template(
         'index.html',
         words=words,
+        msg=msg
     )
 
 @app.route('/error')
@@ -80,17 +82,57 @@ def save_word():
     db.words.insert_one(doc)
     return jsonify({
         'result': 'success',
-        'msg': f'kata, {word}, sudah tersimpan!!!'
+        'msg': f'Kata, {word}, sudah tersimpan!!!'
     })
 
 @app.route('/api/delete_word', methods=['POST'])
 def delete_word():
     word = request.form.get('word_give')
     db.words.delete_one({'word': word})
+    db.examples.delete_many({'word': word})
     return jsonify({
         'result': 'success',
-        'msg': f'kata {word} sudah terhapus'
+        'msg': f'Kata {word} sudah terhapus!!'
     })
+
+@app.route("/api/get_exs", methods=["GET"])
+def get_exs():
+    word = request.args.get("word")
+    example_data = db.examples.find({"word": word})
+    examples = []
+    for example in example_data:
+        examples.append(
+            {"example": example.get("example"), "id": str(example.get("_id"))}
+        )
+    print("examples", examples)
+    return jsonify({"result": "success", "examples": examples})
+
+
+@app.route("/api/save_ex", methods=["POST"])
+def save_ex():
+    word = request.form.get("word")
+    example = request.form.get("example")
+    doc = {
+        "word": word,
+        "example": example,
+    }
+    db.examples.insert_one(doc)
+    return jsonify(
+        {
+            "result": "success",
+            "msg": f'Contoh kalimat anda, "{example}", dari kata "{word}" telah tersimpan!!',
+        }
+    )
+
+
+@app.route("/api/delete_ex", methods=["POST"])
+def delete_ex():
+    id = request.form.get("id")
+    word = request.form.get("word")
+    db.examples.delete_one({"_id": ObjectId(id)})
+    return jsonify(
+        {"result": "success", "msg": f'Kata, "{word}", berhasil dihapus!!'}
+    )
 
 if __name__ == '__main__':
     app.run('0.0.0.0', port=5000, debug=True)

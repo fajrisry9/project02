@@ -35,15 +35,20 @@ span.example {
 
 .btn-sparta {
     color: white;
-    background-color: #e8344e;
-    border-color: #e8344e 1px solid;
+    background-color: #346de8;
+    border-color: #346de8 1px solid;
 }
 
 .btn-sparta-outline {
-    color: #e8344e;
+    color: #346de8;
     background-color: transparent;
     background-image: none;
-    border: #e8344e 1px solid;
+    border: #346de8 1px solid;
+}
+
+#btn-delete {
+    background-color: #e72c45;
+    border-color: #e72c45;
 }
 
 .search-box {
@@ -84,19 +89,19 @@ td > a, a:visited, a:hover, a:active {
 }
 
 thead:first-child tr:first-child th:first-child {
-    border-radius: 10px 0 0 0;
+    border-radius: 5px 0 0 0;
 }
 
 thead:first-child tr:first-child th:last-child {
-    border-radius: 0 10px 0 0;
+    border-radius: 0 5px 0 0;
 }
 
 tbody:last-child tr:last-child td:first-child {
-    border-radius: 0 0 0 10px;
+    border-radius: 0 0 0 5px;
 }
 
 tbody:last-child tr:last-child td:last-child {
-    border-radius: 0 0 10px 0;
+    border-radius: 0 0 5px 0;
 }
 
 #tabel {
@@ -110,4 +115,24 @@ tr.highlight > td {
 
 tr.highlight a {
     color: white;
+}
+
+.delete_button {
+    text-decoration: none;
+    color: #f07c8c;
+    background-color: transparent;
+}
+
+.delete_button:hover {
+    text-decoration: underline;
+    color: #e72c45;
+    background-color: transparent;
+}
+
+a {
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
 }
